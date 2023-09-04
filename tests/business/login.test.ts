@@ -6,6 +6,7 @@ import { IdGeneratorMock } from "../mocks/IdGeneratorMock"
 import { TokenManagerMock } from "../mocks/TokenManagerMock"
 import { UserDatabaseMock } from "../mocks/UserDatabaseMock"
 import { NotFoundError } from "../../src/errors/NotFoundError"
+import { BaseError } from "../../src/errors/BaseError"
 
 describe("Testando login", () => {
   const userBusiness = new UserBusiness(
@@ -29,4 +30,35 @@ describe("Testando login", () => {
     })
   })
 
+
+
+  test("Email não é string ", async () => {
+      expect.assertions(2);
+      try {
+        const input = LoginSchema.parse({
+          email: 5,
+          password: "fulano123"
+        })
+    
+        await userBusiness.login(input)
+      } catch (error) {
+        expect(error).toBeDefined();
+        expect(error instanceof ZodError).toBe(true);
+      }
+    });
+
+  test("email não encontrado", async () => {
+    expect.assertions(2);
+    try {
+      const input = LoginSchema.parse({
+        email: "fulano@email.com.br",
+        password: "fulano123"
+      })
+  
+      await userBusiness.login(input)
+    } catch (error) {
+      expect(error).toBeDefined();
+      expect(error instanceof BaseError).toBe(true);
+    }
+  });
 })
